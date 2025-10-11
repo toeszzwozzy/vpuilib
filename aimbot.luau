@@ -1,3 +1,9 @@
+--===========================================================================--
+--  FILENAME    : aimbot.luau
+--  AUTHOR      : Toes1618 + Zyon2956 + Exunys
+--  DESCRIPTION : Aimbot module for astral valley prison
+--===========================================================================--
+
 -- Yes this is unobfuscated and i did not fully make this, Exunys did however i did modify it a lot for valley prison so yeah.
 
 pcall(function()
@@ -78,11 +84,9 @@ end
 
 local function GetSmoothingFactor(sensitivity, deltaTime, isAutoLock)
     if sensitivity == 0 then 
-        -- For auto lock with 0 sensitivity, still apply minimal smoothing to prevent snapping
         return isAutoLock and 0.85 or 1
     end
     
-    -- Higher sensitivity = lower smoothing factor = smoother aim
     local smoothingFactor
     
     if sensitivity <= 1 then
@@ -161,11 +165,16 @@ local function IsValidTarget(player)
     
     if not targetPart or not humanoid then return false end
     
-    -- Fix: Add LocalPlayer team check to prevent issues after respawn
     if not LocalPlayer.Team then return false end
     
-    if Environment.Settings.CopMode and not IsPlayerInTeamCategory(player, "Prisoner") then return false end
-    if Environment.Settings.PrisonerMode and not IsPlayerInTeamCategory(player, "Cop") then return false end
+    local localPlayerIsPrisoner = IsPlayerInTeamCategory(LocalPlayer, "Prisoner")
+    local localPlayerIsCop = IsPlayerInTeamCategory(LocalPlayer, "Cop")
+    local targetIsPrisoner = IsPlayerInTeamCategory(player, "Prisoner")
+    local targetIsCop = IsPlayerInTeamCategory(player, "Cop")
+    
+    if localPlayerIsPrisoner and not targetIsCop then return false end
+    if localPlayerIsCop and not targetIsPrisoner then return false end
+    
     if Environment.Settings.TeamCheck and player.Team == LocalPlayer.Team then return false end
     if Environment.Settings.AliveCheck and humanoid.Health <= 0 then return false end
     if not IsTargetVisible(targetPart) then return false end
